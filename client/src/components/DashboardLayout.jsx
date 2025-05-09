@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }) {
               <span>Tasks</span>
             </a>
             <a
-              href="/tasks/new"
+              href="/add-task"
               className="flex items-center space-x-2 text-gray-700 hover:text-black px-3 py-2 rounded-lg transition-colors hover:bg-gray-100"
             >
               <Plus size={18} />
