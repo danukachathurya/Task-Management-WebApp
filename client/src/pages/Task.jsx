@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MoreHorizontal, Trash2, Filter, Edit, Trash } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import DashboardLayout from "../components/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 
@@ -59,10 +61,43 @@ export default function Task() {
   const handleEdit = (taskId) => {
     navigate(`/edit-task/${taskId}`);
   };
-  
 
   const filteredTasks =
     filter === "All" ? tasks : tasks.filter((task) => task.status === filter);
+
+    const exportToPDF = () => {
+      const doc = new jsPDF();
+    
+      doc.setFontSize(18);
+      doc.text("Tasks Report", 14, 22);
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+    
+      const tableColumn = ["Task Title", "Assigned To", "Deadline", "Status"];
+      const tableRows = [];
+    
+      filteredTasks.forEach((task) => {
+        const rowData = [
+          task.title,
+          task.assignedTo,
+          new Date(task.deadline).toLocaleDateString("en-US"),
+          task.status,
+        ];
+        tableRows.push(rowData);
+      });
+    
+      autoTable(doc, {
+        startY: 36,
+        head: [tableColumn],
+        body: tableRows,
+        styles: { halign: "left" },
+        headStyles: { fillColor: [0, 123, 189] },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+      });
+    
+      doc.save("tasks-report.pdf");
+    };
 
   return (
     <DashboardLayout>
@@ -76,7 +111,10 @@ export default function Task() {
             >
               Add New Task
             </button>
-            <button className="border px-4 py-2 rounded hover:bg-gray-100">
+            <button
+              onClick={exportToPDF}
+              className="border px-4 py-2 rounded hover:bg-gray-100"
+            >
               Export PDF
             </button>
           </div>
@@ -182,7 +220,10 @@ export default function Task() {
                     </button>
                     {actionMenuOpen === task._id && (
                       <div className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-md z-10">
-                        <button onClick={() => handleEdit(task._id)} className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <button
+                          onClick={() => handleEdit(task._id)}
+                          className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
                           <Edit className="w-4 h-4 mr-2" /> Edit
                         </button>
                         <button
