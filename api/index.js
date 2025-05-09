@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
+import taskRoutes from "./routes/task.route.js";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
@@ -27,6 +28,7 @@ app.listen(3000, () => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/task', taskRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

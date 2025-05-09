@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 
-export default function AddTask() {
+export default function EditTask() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -10,56 +14,79 @@ export default function AddTask() {
     deadline: "",
   });
 
-  const [submitError, setSubmitError] = useState(null);
+  const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // Fetch the task data
+  useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        const res = await fetch(`/api/task/${id}`);
+        const data = await res.json();
 
-  const handleSubmit = async (e) => {
+        if (res.ok) {
+          setFormData({
+            title: data.title || "",
+            description: data.description || "",
+            assignedTo: data.assignedTo || "",
+            status: data.status || "Pending",
+            deadline: data.deadline ? data.deadline.split("T")[0] : "",
+          });
+        } else {
+          setSubmitError("Failed to fetch task data.");
+        }
+      } catch (err) {
+        setSubmitError("An error occurred while fetching the task.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTask();
+  }, [id]);
+
+  // Handle form submission
+  const handleEdit = async (e) => {
     e.preventDefault();
-    setSubmitError(null);
-    setSubmitSuccess(false);
 
     try {
-      const res = await fetch("/api/task/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const res = await fetch(`/api/task/update/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        setSubmitError(data.message || "Failed to add task.");
-        return;
+      if (res.ok) {
+        setSubmitSuccess(true);
+        setTimeout(() => navigate("/tasks"), 1000);
+      } else {
+        setSubmitError(data.error || "Failed to update task.");
       }
-
-      setSubmitSuccess(true);
-      setFormData({
-        title: "",
-        description: "",
-        assignedTo: "",
-        status: "Pending",
-        deadline: "",
-      });
     } catch (error) {
-      setSubmitError("Something went wrong. Please try again.");
+      console.error("Error editing task:", error);
+      setSubmitError("Something went wrong while updating the task.");
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="text-center mt-10">Loading task...</div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto bg-white p-8 mt-10 rounded-lg shadow">
-        <h2 className="text-2xl font-semibold mb-6">Add New Task</h2>
+        <h2 className="text-2xl font-semibold mb-6">Edit Task</h2>
 
         {submitSuccess && (
           <div className="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
-            Task added successfully!
+            Task updated successfully!
           </div>
         )}
         {submitError && (
@@ -68,7 +95,7 @@ export default function AddTask() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleEdit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-1">
               Task Title <span className="text-red-500">*</span>
@@ -77,10 +104,11 @@ export default function AddTask() {
               type="text"
               name="title"
               value={formData.title}
-              onChange={handleChange}
-              placeholder="Enter task title"
               required
               className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
             />
           </div>
 
@@ -91,8 +119,12 @@ export default function AddTask() {
             <textarea
               name="description"
               value={formData.description}
-              onChange={handleChange}
-              placeholder="Detailed task description"
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               required
               className="w-full border rounded px-4 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -107,8 +139,12 @@ export default function AddTask() {
                 type="text"
                 name="assignedTo"
                 value={formData.assignedTo}
-                onChange={handleChange}
-                placeholder="Enter intern name"
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    assignedTo: e.target.value,
+                  }))
+                }
                 required
                 className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -119,7 +155,12 @@ export default function AddTask() {
               <select
                 name="status"
                 value={formData.status}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    status: e.target.value,
+                  }))
+                }
                 className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Pending">Pending</option>
@@ -136,7 +177,12 @@ export default function AddTask() {
                 type="date"
                 name="deadline"
                 value={formData.deadline}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    deadline: e.target.value,
+                  }))
+                }
                 required
                 className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -148,20 +194,12 @@ export default function AddTask() {
               type="submit"
               className="bg-black text-white px-5 py-2 rounded hover:bg-gray-800"
             >
-              Create Task
+              Update Task
             </button>
             <button
               type="button"
               className="border border-gray-300 px-5 py-2 rounded hover:bg-gray-100"
-              onClick={() =>
-                setFormData({
-                  title: "",
-                  description: "",
-                  assignedTo: "",
-                  status: "Pending",
-                  deadline: "",
-                })
-              }
+              onClick={() => navigate("/dashboard")}
             >
               Cancel
             </button>

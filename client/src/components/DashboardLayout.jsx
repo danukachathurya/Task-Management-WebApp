@@ -1,7 +1,16 @@
 import React from "react";
 import { LayoutDashboard, CheckSquare, Plus, LogOut } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 export default function DashboardLayout({ children }) {
+  const location = useLocation();
+
+  const navLinks = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/tasks", label: "Tasks", icon: CheckSquare },
+    { href: "/add-task", label: "Add Task", icon: Plus },
+  ];
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -11,27 +20,23 @@ export default function DashboardLayout({ children }) {
             Task Central
           </h2>
           <nav className="p-4 space-y-2">
-            <a
-              href="/dashboard"
-              className="flex items-center space-x-2 text-gray-700 hover:text-black px-3 py-2 rounded-lg transition-colors hover:bg-gray-100"
-            >
-              <LayoutDashboard size={18} />
-              <span>Dashboard</span>
-            </a>
-            <a
-              href="/tasks"
-              className="flex items-center space-x-2 bg-gray-900 text-white px-3 py-2 rounded-lg"
-            >
-              <CheckSquare size={18} />
-              <span>Tasks</span>
-            </a>
-            <a
-              href="/add-task"
-              className="flex items-center space-x-2 text-gray-700 hover:text-black px-3 py-2 rounded-lg transition-colors hover:bg-gray-100"
-            >
-              <Plus size={18} />
-              <span>Add Task</span>
-            </a>
+            {navLinks.map(({ href, label, icon: Icon }) => {
+              const isActive = location.pathname === href;
+              return (
+                <a
+                  key={href}
+                  href={href}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-gray-900 text-white"
+                      : "text-gray-700 hover:text-black hover:bg-gray-100"
+                  }`}
+                >
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </a>
+              );
+            })}
           </nav>
         </div>
 
@@ -52,9 +57,9 @@ export default function DashboardLayout({ children }) {
           </div>
         </div>
       </aside>
+
       {/* Content Area */}
-      <main className="flex-1 p-6">{children}</main>{" "}
-      {/* This part renders children */}
+      <main className="flex-1 p-6">{children}</main>
     </div>
   );
 }
