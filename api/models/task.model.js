@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema(
   {
@@ -16,17 +16,22 @@ const taskSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Pending', 'In Progress', 'Done'],
-      default: 'Pending',
+      enum: ["Pending", "In Progress", "Done"],
+      default: "Pending",
     },
     deadline: {
       type: Date,
+      required: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
   },
   { timestamps: true }
 );
 
-const Task = mongoose.model('Task', taskSchema);
+const Task = mongoose.model("Task", taskSchema);
 
 export default Task;

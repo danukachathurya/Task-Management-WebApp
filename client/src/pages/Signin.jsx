@@ -20,7 +20,7 @@ export default function SignIn() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // not refresh the form
+    e.preventDefault();
     if (!formData.email || !formData.password) {
       return dispatch(signInFailure("Please fill out all required fields"));
     }
@@ -37,7 +37,7 @@ export default function SignIn() {
       }
       if (res.ok) {
         dispatch(signInSuccess(data));
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (error) {
       dispatch(signInFailure(error.message));

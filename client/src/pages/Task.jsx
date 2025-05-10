@@ -24,13 +24,17 @@ export default function Task() {
 
   const fetchTasks = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/task/all");
+      const res = await fetch("http://localhost:3000/api/task/all", {
+        credentials: "include", // required to send cookies
+      });
       const data = await res.json();
       setTasks(data.tasks || []);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
   };
+  
+  
 
   const handleDelete = async (taskId) => {
     try {

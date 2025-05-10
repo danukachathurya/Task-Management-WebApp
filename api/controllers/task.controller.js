@@ -15,23 +15,39 @@ export const createTask = async (req, res, next) => {
 // Get all tasks
 export const getTasks = async (req, res, next) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 });
-    res.status(200).json({ tasks });
+    const userId = req.user.id; 
+
+    const tasks = await Task.find({ userId }).sort({ createdAt: -1 });
+
+    const totalTasks = tasks.length;
+    const statusCounts = {
+      total: totalTasks,
+      pending: tasks.filter(t => t.status?.toLowerCase() === 'pending').length,
+      inProgress: tasks.filter(t => t.status?.toLowerCase() === 'in progress').length,
+      done: tasks.filter(t => t.status?.toLowerCase() === 'done').length,
+    };
+
+    res.status(200).json({ tasks, totalTasks, statusCounts });
   } catch (error) {
     next(error);
   }
 };
+
 
 // Get single task
 export const getTask = async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.taskId);
     if (!task) return next(errorHandler(404, 'Task not found'));
-    res.status(200).json(task);
+
+    const totalTasks = await Task.countDocuments();
+
+    res.status(200).json({ task, totalTasks }); 
   } catch (error) {
     next(error);
   }
 };
+
 
 // Update task
 export const updateTask = async (req, res, next) => {

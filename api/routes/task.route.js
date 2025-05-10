@@ -4,8 +4,9 @@ import {
   getTasks,
   getTask,
   updateTask,
-  deleteTask
+  deleteTask,
 } from '../controllers/task.controller.js';
+import { verifyToken } from '../utils/verifyUser.js';
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const router = express.Router();
 router.post('/add', createTask);
 
 // Get all tasks
-router.get('/all', getTasks);
+router.get('/all',verifyToken, getTasks);
 
 // Get single task
 router.get('/:taskId', getTask);
@@ -23,5 +24,6 @@ router.put('/update/:taskId', updateTask);
 
 // Delete task
 router.delete('/delete/:taskId', deleteTask);
+
 
 export default router;

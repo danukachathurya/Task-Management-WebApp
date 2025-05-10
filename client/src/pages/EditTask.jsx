@@ -27,11 +27,13 @@ export default function EditTask() {
 
         if (res.ok) {
           setFormData({
-            title: data.title || "",
-            description: data.description || "",
-            assignedTo: data.assignedTo || "",
-            status: data.status || "Pending",
-            deadline: data.deadline ? data.deadline.split("T")[0] : "",
+            title: data.task.title || "",
+            description: data.task.description || "",
+            assignedTo: data.task.assignedTo || "",
+            status: data.task.status || "Pending",
+            deadline: data.task.deadline
+              ? data.task.deadline.split("T")[0]
+              : "",
           });
         } else {
           setSubmitError("Failed to fetch task data.");

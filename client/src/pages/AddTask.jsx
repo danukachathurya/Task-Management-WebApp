@@ -1,17 +1,21 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import DashboardLayout from "../components/DashboardLayout";
 
 export default function AddTask() {
+  const currentUser = useSelector((state) => state.user.currentUser);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     assignedTo: "",
     status: "Pending",
     deadline: "",
+    userId: currentUser._id,
   });
 
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,6 +50,7 @@ export default function AddTask() {
         assignedTo: "",
         status: "Pending",
         deadline: "",
+        userId: currentUser._id,
       });
     } catch (error) {
       setSubmitError("Something went wrong. Please try again.");
@@ -108,7 +113,7 @@ export default function AddTask() {
                 name="assignedTo"
                 value={formData.assignedTo}
                 onChange={handleChange}
-                placeholder="Enter intern name"
+                placeholder="Enter name"
                 required
                 className="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
